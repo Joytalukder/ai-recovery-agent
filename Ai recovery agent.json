@@ -1,0 +1,385 @@
+{
+  "name": "Ai recovery agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Business-recovery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3783fd63-b6ac-4203-83d0-b293f57a576b",
+      "name": "Webhook",
+      "webhookId": "24ee4a39-e8f6-42d7-8d2a-d300344a3cc0"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bdd5ddde-b9d3-46ef-aa89-ff39d3af6414",
+              "name": "Name",
+              "value": "={{ $json.body.customer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "3fc45fb2-fdd0-4497-9c32-130564fb7563",
+              "name": "Number",
+              "value": "={{ $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "b66e8868-ac32-43de-9779-b42ac03f5428",
+              "name": "Message ",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "34dfe806-74e9-4c56-8ea6-acff33ac2a2b",
+              "name": "Business Name",
+              "value": "={{ $json.body.business_name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "35b1c6ff-d51a-4f20-93a2-8298573b66f7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Message '] }}",
+        "options": {
+          "systemMessage": "You are an AI Business Recovery Agent for Joy's Furniture.\n\nYour responsibilities:\n1. Understand the customer's message and identify the issue.\n2. Classify the lead as Hot, Warm, or Cold.\n3. Identify whether the issue is urgent.\n4. Generate a polite, professional reply.\n5. Never invent delivery dates, refunds, or company policies.\n6. Escalate serious complaints to a human.\n\nReturn valid JSON only, using this structure:\n{\n  \"customer_name\": \"customer name\",\n  \"intent\": \"customer issue\",\n  \"lead_status\": \"Hot, Warm, or Cold\",\n  \"priority\": \"High, Medium, or Low\",\n  \"reply\": \"professional customer response\",\n  \"needs_human\": true\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "f2aff692-032d-4525-99c5-20549a71615a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        320,
+        96
+      ],
+      "id": "ff86d7e1-20b0-4e9f-9547-049fd745013e",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "Sqc1lXOgDqzCGwZE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output;\nconst parsed = JSON.parse(raw);\n\nreturn [{\n  json: {\n    ...parsed,\n    phone: $('Edit Fields').item.json.phone,\n    message: $('Edit Fields').item.json.message\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "8ade1c0a-9fb5-4984-8769-d9376e383613",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "14H4I0ucn5MiekMH8kAPy7CCumgu4rbUqLW5Qv6XQphY",
+          "mode": "list",
+          "cachedResultName": "Business-recovery agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14H4I0ucn5MiekMH8kAPy7CCumgu4rbUqLW5Qv6XQphY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14H4I0ucn5MiekMH8kAPy7CCumgu4rbUqLW5Qv6XQphY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer_name": "={{ $('Edit Fields').item.json.Name }}",
+            "Phone": "={{ $('Edit Fields').item.json.Number }}",
+            "Message ": "={{ $('Edit Fields').item.json['Message '] }}",
+            "Intent": "={{ $json.intent }}",
+            "lead_status": "={{ $json.lead_status }}",
+            "priority": "={{ $json.priority }}",
+            "reply ": "={{ $json.reply }}",
+            "needs_human": "={{ $json.needs_human }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer_name",
+              "displayName": "Customer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message ",
+              "displayName": "Message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_status",
+              "displayName": "lead_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reply ",
+              "displayName": "reply ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "needs_human",
+              "displayName": "needs_human",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        816,
+        -160
+      ],
+      "id": "fa43172e-8bb3-4fca-9fa0-56212732d9eb",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hbbgpzSnNsSFsvOl",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b0535709-b7fc-4cca-a440-cd171d44f875",
+              "leftValue": "={{ $json.needs_human }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        -160
+      ],
+      "id": "c8fc3da9-3a65-472c-82a8-cc05f1deb585",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "8900141914",
+        "text": "={{ $('Edit Fields').item.json.Name }}\n{{ $('Code in JavaScript').item.json.intent }}\n{{ $json.lead_status }}\n\n{{ $json['reply '] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        -256
+      ],
+      "id": "75f1cec3-3b4b-441b-a386-cb1b0181227b",
+      "name": "Send a text message",
+      "webhookId": "1f54a0d8-7e72-42a1-a9b4-6dba64915a35",
+      "credentials": {
+        "telegramApi": {
+          "id": "ixwAc6kxSuwJdPcj",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "54ca4d81-9480-4ef1-8d97-c22768618d25",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4201561a19168d9852cccb773e54b797bcea27ab0897e8e9dd0aba7b827dd7b5"
+  },
+  "nodeGroups": [],
+  "id": "iPDK9AtO8imVQg7D",
+  "tags": []
+}
